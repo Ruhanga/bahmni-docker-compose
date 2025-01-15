@@ -121,6 +121,8 @@ services:
   # OpenMRS:
   openmrs:
     image: mekomsolutions/openmrs:bahmni_latest
+    build:
+      context: ./openmrs
     restart: unless-stopped
     depends_on:
       - mysql
@@ -154,6 +156,8 @@ services:
         aliases:
           - openmrs
           - openmrs-tomcat
+    ports:
+      - "80:8080"
     volumes:
       - "openmrs-data:/usr/local/tomcat/.OpenMRS/"
       - "${OPENMRS_OWAS_PATH:-openmrs-owas}:/usr/local/tomcat/.OpenMRS/owa/"

@@ -193,9 +193,9 @@ To start OpenMRS with your own database, just drop your data file (`.sql` or `.s
 To get the backup of services:
 
 ```
-export BACKUP_PATH=<path/to/backup>
+export BACKUP_PATH=./
 # Run the backup
-export BACKUP_FOLDER=`date +%F-%R` && docker-compose [-p <project-name>] -f backup.docker-compose.yml up
+export BACKUP_FOLDER=`date +%F-%R` && docker compose -f backup.docker-compose.yml up openmrs-db-backup
 ```
 
 ### Upload and Download backups from S3 

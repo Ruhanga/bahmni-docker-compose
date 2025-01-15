@@ -1,0 +1,49 @@
+using this branch:
+
+- 1 copy the database dump.sql backup file to:
+    sql/mysql
+- 2 rename the dump to openmrs.sql:
+- 3 spin-up mysql and openmrs services only:
+    docker compose up mysql openmrs --build
+- 4 access openmrs at:
+    localhost/openmrs
+- 5 login as:
+    admin:Admin123
+- 6 proceed with the liquibase migrations:
+    by clicking the forward button at the bottom of the page 
+- 7 wait for all the liquibase migrations to go through:
+- 8 access localhost/openmrs which should display:
+    OpenMRS Platform 2.* Running!
+- 9 terminate the docker containers and repeat steps 3 to 7 for versions of OpenMRS Core; 2.2.1, 2.3.6, 2.4.5 and 2.5.12:
+    - note: do not terminate the containers when running with 2.5.12 as the corresonding database will have to be backup in the next step
+    - note: to change the openmrs version, access ./openmrs/Dockerfile and update OPENMRS_WAR_URL accordingly
+- 10 in a different terminal backup the updated opnemrs database:
+    follow instructions in the "Backup databases and filestores" section in the readme (only run the openmrs-db-backup service)
+- 11 stop the containers by terminating the previous command (docker compose up mysql openmrs --build) under the termin in which it's running:
+    (control + C on the keyboard)
+
+
+
+- 12 Using the backup openmrs dump, restore it into Ozone appropriately and start only the mysql instance:
+- 13 run the following queries in preparations to start the acompaning openmrs service:
+    UPDATE concept_reference_source SET hl7_code = 'SCT-legacy' WHERE hl7_code = 'SCT' AND uuid like '03f574a2-dce4-11ec-925e-0242ac160002';
+
+    UPDATE concept SET uuid = CONCAT(uuid, REPEAT('A', 36 - LENGTH(uuid))) WHERE uuid IN ('5090AAAAAAAAAAAAAAAAAAAAAAAAAAAA', '5089AAAAAAAAAAAAAAAAAAAAAAAAAAAA');
+
+    UPDATE drug_order SET dosing_type = 'org.openmrs.SimpleDosingInstructions' WHERE dosing_type = 'org.openmrs.module.bahmniemrapi.drugorder.dosinginstructions.FlexibleDosingInstructions';
+
+    INSERT INTO test_order (order_id) SELECT o.order_id FROM orders o JOIN order_type ot ON o.order_type_id = ot.order_type_id WHERE ot.uuid = 'f8ae333e-9d1a-423e-a6a8-c3a0687ebcf2';
+
+    UPDATE orders o set o.order_type_id=(select order_type_id from order_type where uuid like '52a447d3-a64a-11e3-9aeb-50e549534c5e' limit 1) WHERE o.order_type_id = (select order_type_id from order_type where uuid like 'f8ae333e-9d1a-423e-a6a8-c3a0687ebcf2' limit 1);
+    
+    CREATE TABLE openmrs.patientflags_tag_role (
+        tag_id INT NOT NULL,
+        role VARCHAR(50) NOT NULL,
+        CONSTRAINT patientflags_tag_role_ibfk_2 FOREIGN KEY (role) REFERENCES openmrs.role(role)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci; 
+    ## the above  tryes to avoid the following error when patientflags module liquibase migrations are run : ERROR 1005 (HY000): Can't create table `openmrs`.`patientflags_tag_role` (errno: 150 "Foreign key constraint is incorrectly formed")
+
+- 14 start the rest of the containers in addition to the already running mysql containers:
+- 15 restart all the Ozone containers and where neccessary it might be required to run the query on the openmrs database:
+    UPDATE liquibasechangeloglock SET LOCKED = '0', LOCKEDBY = NULL, LOCKGRANTED = NULL WHERE ID = 1;
+- 16 access the running ozone based openmrs instance and rebuild the search index:
