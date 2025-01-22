@@ -26,6 +26,10 @@ using this branch:
 
 - 12 Using the backup openmrs dump, restore it into Ozone appropriately and start only the mysql instance:
 - 13 run the following queries in preparations to start the acompaning openmrs service:
+    DROP TABLE allergy_reaction;
+
+    DROP TABLE allergy;
+    
     UPDATE concept_reference_source SET hl7_code = 'SCT-legacy' WHERE hl7_code = 'SCT' AND uuid like '03f574a2-dce4-11ec-925e-0242ac160002';
 
     UPDATE concept SET uuid = CONCAT(uuid, REPEAT('A', 36 - LENGTH(uuid))) WHERE uuid IN ('5090AAAAAAAAAAAAAAAAAAAAAAAAAAAA', '5089AAAAAAAAAAAAAAAAAAAAAAAAAAAA');
