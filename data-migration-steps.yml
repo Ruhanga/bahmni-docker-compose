@@ -49,4 +49,6 @@ using this branch:
 - 16 access the running ozone based openmrs instance and rebuild the search index:
 - 17 migrate encounter diagnoses from obs to their more specialised data model:
     retire the following duplicate OCL concepts (name:Diagnosis or problem, non-coded, uuid:161602AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA), (name:Problem list, uuid:1284AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA)
-    via legacy ui, navigate to 'Administration > Migrate Existing Diagnosis Data' and proceed to migrate diagnoses
+    
+    via legacy ui, navigate to 'Administration > Migrate Existing Diagnosis Data' and proceed to migrate diagnoses, this will take a long while
+        query the encounter_diagnosis table to ensure completion by getting a consistent result for 1 minute using this query - `select count(*) from encounter_diagnosis;`
