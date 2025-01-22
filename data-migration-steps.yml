@@ -26,10 +26,6 @@ using this branch:
 
 - 12 Using the backup openmrs dump, restore it into Ozone appropriately and start only the mysql instance:
 - 13 run the following queries in preparations to start the acompaning openmrs service:
-    DROP TABLE allergy_reaction;
-
-    DROP TABLE allergy;
-    
     UPDATE concept_reference_source SET hl7_code = 'SCT-legacy' WHERE hl7_code = 'SCT' AND uuid like '03f574a2-dce4-11ec-925e-0242ac160002';
 
     UPDATE concept SET uuid = CONCAT(uuid, REPEAT('A', 36 - LENGTH(uuid))) WHERE uuid IN ('5090AAAAAAAAAAAAAAAAAAAAAAAAAAAA', '5089AAAAAAAAAAAAAAAAAAAAAAAAAAAA');
@@ -51,3 +47,6 @@ using this branch:
 - 15 restart all the Ozone containers and where neccessary it might be required to run the query on the openmrs database:
     UPDATE liquibasechangeloglock SET LOCKED = '0', LOCKEDBY = NULL, LOCKGRANTED = NULL WHERE ID = 1;
 - 16 access the running ozone based openmrs instance and rebuild the search index:
+- 17 migrate encounter diagnoses from obs to their more specialised data model:
+    retire the following duplicate OCL concepts (name:Diagnosis or problem, non-coded, uuid:161602AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA), (name:Problem list, uuid:1284AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA)
+    via legacy ui, navigate to 'Administration > Migrate Existing Diagnosis Data' and proceed to migrate diagnoses
